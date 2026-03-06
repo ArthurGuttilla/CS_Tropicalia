@@ -8,8 +8,9 @@ import Textarea from '@/components/ui/Textarea'
 import Select from '@/components/ui/Select'
 import Button from '@/components/ui/Button'
 import WidgetPreview from './WidgetPreview'
+import ChatTester from './ChatTester'
 import { useToast } from '@/components/ui/Toast'
-import { Save, RotateCcw, Loader2 } from 'lucide-react'
+import { Save, RotateCcw, Loader2, Eye, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface WidgetConfiguratorProps {
@@ -65,9 +66,12 @@ const EMOJI_OPTIONS = [
   '🤖', '💬', '🌴', '🌟', '💡', '🎯', '🦾', '🔮', '⚡', '🌊', '🎙️', '🤝',
 ]
 
+type RightPane = 'preview' | 'test'
+
 export default function WidgetConfigurator({ projectId }: WidgetConfiguratorProps) {
   const [config, setConfig] = useState<WidgetConfig>(defaultWidgetConfig)
   const [activeTab, setActiveTab] = useState<ConfigTab>('identity')
+  const [rightPane, setRightPane] = useState<RightPane>('preview')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const { success, error } = useToast()
@@ -367,16 +371,47 @@ export default function WidgetConfigurator({ projectId }: WidgetConfiguratorProp
         </div>
       </div>
 
-      {/* Live Preview */}
-      <div className="flex flex-1 flex-col">
-        <div className="border-b border-gray-100 bg-white px-5 py-3">
-          <p className="text-sm font-medium text-gray-700">Live Preview</p>
-          <p className="text-xs text-gray-400">
-            Changes are reflected instantly in the preview below.
+      {/* Right pane: Preview / Test Chat */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Pane toggle */}
+        <div className="flex items-center gap-1 border-b border-gray-100 bg-white px-4 py-2">
+          <button
+            onClick={() => setRightPane('preview')}
+            className={cn(
+              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+              rightPane === 'preview'
+                ? 'bg-gray-100 text-gray-800'
+                : 'text-gray-400 hover:text-gray-600'
+            )}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Preview
+          </button>
+          <button
+            onClick={() => setRightPane('test')}
+            className={cn(
+              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+              rightPane === 'test'
+                ? 'bg-amber-100 text-amber-800'
+                : 'text-gray-400 hover:text-gray-600'
+            )}
+          >
+            <Zap className="h-3.5 w-3.5" />
+            Test Chat
+          </button>
+          <p className="ml-auto text-[10px] text-gray-400">
+            {rightPane === 'preview'
+              ? 'Static preview — instant updates'
+              : 'Live chat using your knowledge base'}
           </p>
         </div>
+
         <div className="flex-1 overflow-hidden">
-          <WidgetPreview config={config} />
+          {rightPane === 'preview' ? (
+            <WidgetPreview config={config} />
+          ) : (
+            <ChatTester projectId={projectId} config={config} />
+          )}
         </div>
       </div>
     </div>
