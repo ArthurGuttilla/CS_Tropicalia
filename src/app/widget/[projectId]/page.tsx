@@ -1,9 +1,10 @@
 import ChatWidgetPage from '@/components/chat/ChatWidgetPage'
 
-export default function WidgetRoute({
+export default async function WidgetRoute({
   params,
 }: {
-  params: { projectId: string }
+  params: Promise<{ projectId: string }>
 }) {
-  return <ChatWidgetPage projectId={params.projectId} />
+  const { projectId } = await params
+  return <ChatWidgetPage projectId={projectId} />
 }

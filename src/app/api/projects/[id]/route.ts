@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import * as tropicalia from '@/lib/tropicalia'
 
-type Params = { params: { id: string } }
+type Params = { params: Promise<{ id: string }> }
 
 export async function GET(_req: NextRequest, { params }: Params) {
+  const { id } = await params
   try {
-    const project = await tropicalia.getProject(params.id)
+    const project = await tropicalia.getProject(id)
     return NextResponse.json({ project })
   } catch (err) {
     const status = err instanceof tropicalia.TropicaliaError ? err.status : 500
@@ -14,9 +15,10 @@ export async function GET(_req: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
+  const { id } = await params
   try {
     const body = await req.json()
-    const project = await tropicalia.updateProject(params.id, body)
+    const project = await tropicalia.updateProject(id, body)
     return NextResponse.json({ project })
   } catch (err) {
     const status = err instanceof tropicalia.TropicaliaError ? err.status : 500
@@ -26,8 +28,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
+  const { id } = await params
   try {
-    await tropicalia.deleteProject(params.id)
+    await tropicalia.deleteProject(id)
     return NextResponse.json({ success: true })
   } catch (err) {
     const status = err instanceof tropicalia.TropicaliaError ? err.status : 500
