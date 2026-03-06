@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sidebar-width: 240px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 999px;
+  }
+
+  /* Chat message prose */
+  .prose-chat p {
+    @apply mb-3 last:mb-0 leading-relaxed;
+  }
+
+  .prose-chat ul {
+    @apply mb-3 ml-4 list-disc space-y-1;
+  }
+
+  .prose-chat ol {
+    @apply mb-3 ml-4 list-decimal space-y-1;
+  }
+
+  .prose-chat code {
+    @apply rounded bg-black/5 px-1 py-0.5 font-mono text-sm;
+  }
+
+  .prose-chat pre {
+    @apply mb-3 overflow-x-auto rounded-lg bg-gray-900 p-3 text-sm text-gray-100;
+  }
+
+  .prose-chat pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose-chat strong {
+    @apply font-semibold;
+  }
+}
