@@ -24,7 +24,6 @@ export default function ProjectCard({ project, onDeleted }: ProjectCardProps) {
   const [deleting, setDeleting] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const { error, success } = useToast()
-  const router = useRouter()
 
   const closeMenu = useCallback((e: MouseEvent) => {
     if (menuRef.current && !menuRef.current.contains(e.target as Node)) {

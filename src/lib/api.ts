@@ -7,7 +7,7 @@ import { TropicaliaError } from './tropicalia'
  * or a generic 500 for unexpected errors.
  */
 export async function handleRoute<T>(
-  fn: () => Promise<NextResponse<T>>
+  fn: () => Promise<NextResponse<T> | NextResponse<{ error: string }>>
 ): Promise<NextResponse<T | { error: string }>> {
   try {
     return await fn()
