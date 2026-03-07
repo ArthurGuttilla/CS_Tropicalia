@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { FileText, Link2, AlignLeft, Upload, X } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
+import type { KnowledgeBase } from '@/lib/types'
 
 type SourceType = 'document' | 'url' | 'text'
 
@@ -15,7 +16,7 @@ interface AddSourceModalProps {
   open: boolean
   onClose: () => void
   projectId: string
-  onAdded: (source: { id: string; name: string; type: SourceType; status: string }) => void
+  onAdded: (source: KnowledgeBase) => void
 }
 
 const SOURCE_TYPES: { type: SourceType; label: string; icon: React.ElementType; desc: string }[] = [
