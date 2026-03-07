@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Header from '@/components/layout/Header'
 import ProjectCard from '@/components/projects/ProjectCard'
 import CreateProjectModal from '@/components/projects/CreateProjectModal'
@@ -13,7 +13,7 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     setLoading(true)
     try {
       const res = await fetch('/api/projects')
@@ -22,11 +22,11 @@ export default function ProjectsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchProjects()
-  }, [])
+  }, [fetchProjects])
 
   const handleCreated = (project: Project) => {
     setProjects((prev) => [project, ...prev])

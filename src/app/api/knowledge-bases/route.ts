@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import * as tropicalia from '@/lib/tropicalia'
+import { handleRoute } from '@/lib/api'
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -9,29 +10,26 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'projectId is required' }, { status: 400 })
   }
 
-  try {
+  return handleRoute(async () => {
     const knowledgeBases = await tropicalia.listKnowledgeBases(projectId)
     return NextResponse.json({ knowledgeBases })
-  } catch (err) {
-    const status = err instanceof tropicalia.TropicaliaError ? err.status : 500
-    return NextResponse.json({ error: 'Failed to fetch knowledge bases' }, { status })
-  }
+  })
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const formData = await req.formData()
-    const projectId = formData.get('projectId') as string
-    const type = formData.get('type') as 'document' | 'url' | 'text'
-    const name = formData.get('name') as string
+  const formData = await req.formData()
+  const projectId = formData.get('projectId') as string
+  const type = formData.get('type') as 'document' | 'url' | 'text'
+  const name = formData.get('name') as string
 
-    if (!projectId || !type || !name) {
-      return NextResponse.json(
-        { error: 'projectId, type, and name are required' },
-        { status: 400 }
-      )
-    }
+  if (!projectId || !type || !name) {
+    return NextResponse.json(
+      { error: 'projectId, type, and name are required' },
+      { status: 400 }
+    )
+  }
 
+  return handleRoute(async () => {
     let knowledgeBase
 
     if (type === 'document') {
@@ -57,9 +55,5 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ knowledgeBase }, { status: 201 })
-  } catch (err) {
-    const status = err instanceof tropicalia.TropicaliaError ? err.status : 500
-    const msg = err instanceof Error ? err.message : 'Failed to add source'
-    return NextResponse.json({ error: msg }, { status })
-  }
+  })
 }

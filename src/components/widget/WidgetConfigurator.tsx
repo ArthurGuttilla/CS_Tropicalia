@@ -77,12 +77,15 @@ export default function WidgetConfigurator({ projectId }: WidgetConfiguratorProp
   const { success, error } = useToast()
 
   useEffect(() => {
-    fetch(`/api/widget-config/${projectId}`)
+    const controller = new AbortController()
+    fetch(`/api/widget-config/${projectId}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => {
         if (d.config) setConfig({ ...defaultWidgetConfig, ...d.config })
       })
+      .catch((e) => { if (e.name !== 'AbortError') console.error(e) })
       .finally(() => setLoading(false))
+    return () => controller.abort()
   }, [projectId])
 
   const update = <K extends keyof WidgetConfig>(key: K, value: WidgetConfig[K]) => {

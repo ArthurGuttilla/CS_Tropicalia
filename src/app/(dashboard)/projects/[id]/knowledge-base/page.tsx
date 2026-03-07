@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import ProjectBreadcrumb from '@/components/layout/ProjectBreadcrumb'
@@ -41,7 +41,7 @@ export default function KnowledgeBasePage() {
   const [showModal, setShowModal] = useState(false)
   const { error, success } = useToast()
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
       const [projRes, kbRes] = await Promise.all([
@@ -55,11 +55,11 @@ export default function KnowledgeBasePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [id])
 
   useEffect(() => {
     fetchData()
-  }, [id])
+  }, [fetchData])
 
   const handleAdded = (source: KnowledgeBase) => {
     setSources((prev) => [source, ...prev])

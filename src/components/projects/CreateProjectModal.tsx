@@ -6,11 +6,12 @@ import Input from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import Button from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
+import type { Project } from '@/lib/types'
 
 interface CreateProjectModalProps {
   open: boolean
   onClose: () => void
-  onCreated: (project: { id: string; name: string; description?: string }) => void
+  onCreated: (project: Project) => void
 }
 
 export default function CreateProjectModal({

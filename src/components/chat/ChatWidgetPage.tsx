@@ -5,22 +5,10 @@ import type { ChatMessage, WidgetConfig } from '@/lib/types'
 import { defaultWidgetConfig } from '@/lib/types'
 import { Send, Loader2, RotateCcw, ExternalLink } from 'lucide-react'
 import { cn, generateId } from '@/lib/utils'
+import TypingDots from '@/components/ui/TypingDots'
 
 interface ChatWidgetPageProps {
   projectId: string
-}
-
-function TypingIndicator({ emoji }: { emoji: string }) {
-  return (
-    <div className="flex items-start gap-2">
-      <span className="mt-1 text-lg">{emoji}</span>
-      <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm bg-white px-4 py-3 shadow-sm">
-        <span className="h-2 w-2 rounded-full bg-gray-300 animate-[pulseDot_1.4s_0s_infinite]" />
-        <span className="h-2 w-2 rounded-full bg-gray-300 animate-[pulseDot_1.4s_0.2s_infinite]" />
-        <span className="h-2 w-2 rounded-full bg-gray-300 animate-[pulseDot_1.4s_0.4s_infinite]" />
-      </div>
-    </div>
-  )
 }
 
 export default function ChatWidgetPage({ projectId }: ChatWidgetPageProps) {
@@ -34,7 +22,8 @@ export default function ChatWidgetPage({ projectId }: ChatWidgetPageProps) {
 
   // Load widget config
   useEffect(() => {
-    fetch(`/api/widget-config/${projectId}`)
+    const controller = new AbortController()
+    fetch(`/api/widget-config/${projectId}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => {
         const cfg = { ...defaultWidgetConfig, ...(d.config ?? {}) }
@@ -49,7 +38,8 @@ export default function ChatWidgetPage({ projectId }: ChatWidgetPageProps) {
         ])
         setConfigLoaded(true)
       })
-      .catch(() => {
+      .catch((e) => {
+        if (e.name === 'AbortError') return
         setMessages([
           {
             id: generateId(),
@@ -60,6 +50,7 @@ export default function ChatWidgetPage({ projectId }: ChatWidgetPageProps) {
         ])
         setConfigLoaded(true)
       })
+    return () => controller.abort()
   }, [projectId])
 
   useEffect(() => {
@@ -261,7 +252,14 @@ export default function ChatWidgetPage({ projectId }: ChatWidgetPageProps) {
           </div>
         ))}
 
-        {isLoading && <TypingIndicator emoji={config.avatarEmoji} />}
+        {isLoading && (
+          <div className="flex items-start gap-2 animate-fade-in">
+            <span className="mt-1 flex-shrink-0 text-xl leading-none">{config.avatarEmoji}</span>
+            <div className="rounded-2xl rounded-tl-sm bg-white shadow-sm">
+              <TypingDots />
+            </div>
+          </div>
+        )}
 
         <div ref={bottomRef} />
       </div>

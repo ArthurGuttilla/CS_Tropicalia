@@ -2,27 +2,13 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import type { ChatMessage, WidgetConfig } from '@/lib/types'
-import { generateId } from '@/lib/utils'
+import { cn, generateId } from '@/lib/utils'
 import { Send, Loader2, RotateCcw, ExternalLink, Zap } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import TypingDots from '@/components/ui/TypingDots'
 
 interface ChatTesterProps {
   projectId: string
   config: WidgetConfig
-}
-
-function TypingDots() {
-  return (
-    <div className="flex items-center gap-1 px-4 py-3">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="h-2 w-2 rounded-full bg-gray-300"
-          style={{ animation: `pulseDot 1.4s ${i * 0.2}s infinite` }}
-        />
-      ))}
-    </div>
-  )
 }
 
 export default function ChatTester({ projectId, config }: ChatTesterProps) {
@@ -33,7 +19,7 @@ export default function ChatTester({ projectId, config }: ChatTesterProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const isDark = config.theme === 'dark'
 
-  // Re-init with new welcome message when config changes
+  // Re-init conversation when welcome message changes
   useEffect(() => {
     setMessages([
       {
@@ -43,7 +29,7 @@ export default function ChatTester({ projectId, config }: ChatTesterProps) {
         timestamp: new Date(),
       },
     ])
-  }, [config.welcomeMessage, config.chatbotName])
+  }, [config.welcomeMessage])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })

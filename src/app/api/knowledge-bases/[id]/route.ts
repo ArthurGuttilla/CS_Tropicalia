@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import * as tropicalia from '@/lib/tropicalia'
+import { handleRoute } from '@/lib/api'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -12,11 +13,8 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'projectId is required' }, { status: 400 })
   }
 
-  try {
+  return handleRoute(async () => {
     await tropicalia.deleteKnowledgeBase(projectId, id)
     return NextResponse.json({ success: true })
-  } catch (err) {
-    const status = err instanceof tropicalia.TropicaliaError ? err.status : 500
-    return NextResponse.json({ error: 'Failed to delete source' }, { status })
-  }
+  })
 }

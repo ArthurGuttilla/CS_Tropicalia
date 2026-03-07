@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import type { Project } from '@/lib/types'
 import { formatRelativeTime } from '@/lib/utils'
 import {
@@ -12,7 +11,7 @@ import {
   Trash2,
   ArrowUpRight,
 } from 'lucide-react'
-import { useState, useRef, useEffect } from 'react'
+import { useCallback, useState, useRef, useEffect } from 'react'
 import { useToast } from '@/components/ui/Toast'
 
 interface ProjectCardProps {
@@ -27,15 +26,16 @@ export default function ProjectCard({ project, onDeleted }: ProjectCardProps) {
   const { error, success } = useToast()
   const router = useRouter()
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false)
-      }
+  const closeMenu = useCallback((e: MouseEvent) => {
+    if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      setMenuOpen(false)
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  useEffect(() => {
+    document.addEventListener('mousedown', closeMenu)
+    return () => document.removeEventListener('mousedown', closeMenu)
+  }, [closeMenu])
 
   const handleDelete = async () => {
     if (!confirm(`Delete project "${project.name}"? This cannot be undone.`))
