@@ -1,7 +1,6 @@
 'use client'
 
 import Header from '@/components/layout/Header'
-import Input from '@/components/ui/Input'
 import { ExternalLink, CheckCircle, Key, Server, BookOpen } from 'lucide-react'
 
 const ENV_VARS = [
