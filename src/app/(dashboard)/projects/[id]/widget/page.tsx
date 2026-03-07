@@ -12,9 +12,12 @@ export default function WidgetPage() {
   const [project, setProject] = useState<Project | null>(null)
 
   useEffect(() => {
-    fetch(`/api/projects/${id}`)
+    const controller = new AbortController()
+    fetch(`/api/projects/${id}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setProject(d.project))
+      .catch((e) => { if (e.name !== 'AbortError') console.error(e) })
+    return () => controller.abort()
   }, [id])
 
   return (

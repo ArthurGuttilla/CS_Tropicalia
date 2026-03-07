@@ -38,10 +38,13 @@ export default function ProjectPage() {
   const [editOpen, setEditOpen] = useState(false)
 
   useEffect(() => {
-    fetch(`/api/projects/${id}`)
+    const controller = new AbortController()
+    fetch(`/api/projects/${id}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setProject(d.project))
+      .catch((e) => { if (e.name !== 'AbortError') console.error(e) })
       .finally(() => setLoading(false))
+    return () => controller.abort()
   }, [id])
 
   if (loading) {

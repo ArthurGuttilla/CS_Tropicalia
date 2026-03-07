@@ -11,15 +11,23 @@ export default function EmbedPage() {
   const { id } = useParams<{ id: string }>()
   const [project, setProject] = useState<Project | null>(null)
 
-  const appUrl =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  // Initialize with env var so SSR and first client render match,
+  // then update to the real origin after hydration to avoid mismatch.
+  const [appUrl, setAppUrl] = useState(
+    process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  )
 
   useEffect(() => {
-    fetch(`/api/projects/${id}`)
+    setAppUrl(window.location.origin)
+  }, [])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch(`/api/projects/${id}`, { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => setProject(d.project))
+      .catch((e) => { if (e.name !== 'AbortError') console.error(e) })
+    return () => controller.abort()
   }, [id])
 
   return (
