@@ -1,6 +1,7 @@
 {
   "name": "cs-tropicalia",
   "private": true,
+  "packageManager": "pnpm@8.15.6",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
