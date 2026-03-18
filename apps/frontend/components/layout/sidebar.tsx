@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, Building2, User, Zap } from 'lucide-react'
+import { Bell, Building2, Plug, User, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/accounts', label: 'Contas', icon: Building2 },
   { href: '/alerts', label: 'Alertas', icon: Bell },
+  { href: '/connectors', label: 'Conectores', icon: Plug },
 ]
 
 const clerkEnabled =
