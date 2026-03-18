@@ -2,14 +2,39 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BarChart3, Bell, Building2, Home, Zap } from 'lucide-react'
+import { Bell, Building2, User, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { UserButton } from '@clerk/nextjs'
 
 const navItems = [
   { href: '/accounts', label: 'Contas', icon: Building2 },
   { href: '/alerts', label: 'Alertas', icon: Bell },
 ]
+
+const clerkEnabled =
+  !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+  !!process.env.CLERK_SECRET_KEY
+
+function UserSection() {
+  if (!clerkEnabled) {
+    return (
+      <div className="px-6 py-4 border-t border-slate-800 flex items-center gap-3">
+        <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center">
+          <User className="w-4 h-4 text-slate-400" />
+        </div>
+        <p className="text-xs text-slate-400">Demo mode</p>
+      </div>
+    )
+  }
+
+  // Lazy-load UserButton only when Clerk is configured
+  const { UserButton } = require('@clerk/nextjs')
+  return (
+    <div className="px-6 py-4 border-t border-slate-800 flex items-center gap-3">
+      <UserButton afterSignOutUrl="/sign-in" />
+      <p className="text-xs text-slate-400">Minha conta</p>
+    </div>
+  )
+}
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -50,13 +75,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* User */}
-      <div className="px-6 py-4 border-t border-slate-800 flex items-center gap-3">
-        <UserButton afterSignOutUrl="/sign-in" />
-        <div className="min-w-0">
-          <p className="text-xs text-slate-400">Minha conta</p>
-        </div>
-      </div>
+      <UserSection />
     </aside>
   )
 }
