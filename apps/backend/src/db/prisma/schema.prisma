@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Tier {
+  starter
+  growth
+  enterprise
+}
+
+enum HealthTier {
+  green
+  yellow
+  red
+}
+
+enum OnboardingStatus {
+  pending
+  active
+  completed
+  churned
+}
+
+enum SignalType {
+  usage_drop
+  ticket_sla_breach
+  interaction_silence
+  champion_change
+}
+
+enum SignalSeverity {
+  low
+  medium
+  high
+  critical
+}
+
+enum AlertStatus {
+  open
+  acknowledged
+  resolved
+}
+
+enum InteractionType {
+  call
+  email
+  slack_message
+  support_ticket
+  qbr
+}
+
+enum TicketPriority {
+  p0
+  p1
+  p2
+  p3
+}
+
+enum TicketStatus {
+  open
+  in_progress
+  pending_customer
+  resolved
+  closed
+}
+
+model User {
+  id         String    @id @default(cuid())
+  clerk_id   String    @unique
+  email      String    @unique
+  name       String
+  role       String    @default("csm")
+  accounts   Account[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+}
+
+model Account {
+  id                    String           @id @default(cuid())
+  name                  String
+  tier                  Tier
+  arr                   Float
+  mrr                   Float
+  industry              String
+  region                String
+  health_score          Int              @default(100)
+  health_tier           HealthTier       @default(green)
+  renewal_date          DateTime?
+  onboarding_status     OnboardingStatus @default(active)
+  integrations_active   String[]         @default([])
+  tropicalia_context_id String?          @unique
+  champion_name         String?
+  champion_email        String?
+  executive_sponsor     String?
+  products              String[]         @default([])
+  csm_id                String
+  csm                   User             @relation(fields: [csm_id], references: [id])
+  risk_signals          RiskSignal[]
+  briefings             Briefing[]
+  interactions          Interaction[]
+  tickets               Ticket[]
+  usage_snapshots       UsageSnapshot[]
+  alerts                Alert[]
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
+
+  @@index([csm_id])
+  @@index([health_tier])
+  @@index([renewal_date])
+}
+
+model RiskSignal {
+  id               String         @id @default(cuid())
+  account_id       String
+  account          Account        @relation(fields: [account_id], references: [id])
+  type             SignalType
+  severity         SignalSeverity
+  score_impact     Int
+  evidence         Json
+  suggested_action Json?
+  detected_at      DateTime       @default(now())
+  acknowledged_at  DateTime?
+  resolved_at      DateTime?
+  created_at       DateTime       @default(now())
+
+  @@index([account_id])
+  @@index([type])
+  @@index([detected_at])
+}
+
+model Briefing {
+  id                   String   @id @default(cuid())
+  account_id           String
+  account              Account  @relation(fields: [account_id], references: [id])
+  generated_at         DateTime @default(now())
+  ttl_expires_at       DateTime
+  context_window_days  Int      @default(30)
+  summary              String
+  recent_interactions  Json
+  open_items           Json
+  risks                Json
+  opportunities        Json
+  suggested_talking_points Json
+  model_used           String
+  prompt_tokens        Int?
+  completion_tokens    Int?
+  created_at           DateTime @default(now())
+
+  @@index([account_id])
+  @@index([generated_at])
+}
+
+model Interaction {
+  id          String          @id @default(cuid())
+  account_id  String
+  account     Account         @relation(fields: [account_id], references: [id])
+  type        InteractionType
+  subject     String
+  summary     String?
+  occurred_at DateTime
+  csm_id      String?
+  source      String          @default("manual")
+  metadata    Json?
+  created_at  DateTime        @default(now())
+
+  @@index([account_id])
+  @@index([occurred_at])
+}
+
+model Ticket {
+  id          String         @id @default(cuid())
+  account_id  String
+  account     Account        @relation(fields: [account_id], references: [id])
+  external_id String?
+  title       String
+  priority    TicketPriority
+  status      TicketStatus
+  opened_at   DateTime
+  resolved_at DateTime?
+  sla_breach  Boolean        @default(false)
+  source      String         @default("salesforce")
+  metadata    Json?
+  created_at  DateTime       @default(now())
+  updated_at  DateTime       @updatedAt
+
+  @@index([account_id])
+  @@index([priority])
+  @@index([status])
+}
+
+model UsageSnapshot {
+  id                   String   @id @default(cuid())
+  account_id           String
+  account              Account  @relation(fields: [account_id], references: [id])
+  snapshot_date        DateTime
+  weekly_active_users  Int
+  monthly_active_users Int
+  feature_usage        Json
+  api_calls            Int      @default(0)
+  source               String   @default("mixpanel")
+  created_at           DateTime @default(now())
+
+  @@unique([account_id, snapshot_date])
+  @@index([account_id])
+  @@index([snapshot_date])
+}
+
+model Alert {
+  id              String      @id @default(cuid())
+  account_id      String
+  account         Account     @relation(fields: [account_id], references: [id])
+  risk_signal_id  String?
+  type            String
+  severity        String
+  title           String
+  body            String
+  status          AlertStatus @default(open)
+  slack_sent_at   DateTime?
+  email_sent_at   DateTime?
+  acknowledged_at DateTime?
+  resolved_at     DateTime?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+
+  @@index([account_id])
+  @@index([status])
+  @@index([created_at])
+}
